@@ -1,0 +1,118 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+sns.set_theme(color_codes=True)
+df = pd.read_csv('TRAIN.csv')
+df.head()
+print (df)
+#Check the number of unique value on object datatype
+result=df.select_dtypes(include='object').nunique()
+print (result)
+# Number of Store_id unique value
+result=df.Store_id.nunique()
+print (result)
+# Drop ID and Store ID Column because its unnecesary
+df.drop(columns=['ID','Store_id'], inplace=True)
+df.head()
+# Convert 'Date' column to datetime
+df['Date'] = pd.to_datetime(df['Date'])
+#Exploratory Data analysis 
+# list of categorical variables to plot
+cat_vars = ['Store_Type', 'Location_Type', 'Region_Code', 'Holiday', 
+            'Discount']
+# create figure with subplots
+fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(20, 10))
+axs = axs.flatten()
+# create barplot for each categorical variable
+for i, var in enumerate(cat_vars):
+    sns.barplot(x=var, y='Sales', data=df, ax=axs[i], estimator=np.mean)
+    axs[i].set_xticklabels(axs[i].get_xticklabels(), rotation=90)
+# remove the sixth subplot
+fig.delaxes(axs[5])
+# adjust spacing between subplots
+fig.tight_layout()
+# show plot
+plt.show()
+cat_vars = ['Store_Type', 'Location_Type', 'Region_Code', 'Holiday', 
+            'Discount']
+# create a figure and axes
+fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(20, 20))
+# create a pie chart for each categorical variable
+for i, var in enumerate(cat_vars):
+    if i < len(axs.flat):
+        # count the number of occurrences for each category
+        cat_counts = df[var].value_counts()
+         # create a pie chart
+        axs.flat[i].pie(cat_counts, labels=cat_counts.index, autopct='%1.1f%%', startangle=90)
+
+        # set a title for each subplot
+        axs.flat[i].set_title(f'{var} Distribution')
+
+# adjust spacing between subplots
+fig.tight_layout()
+
+# remove sixt plot
+fig.delaxes(axs[1][2])
+
+# show the plot
+plt.show()
+
+
+sns.boxplot(x='#Order', data=df)
+plt.show()
+sns.violinplot(x='#Order', data=df)
+plt.show()
+
+sns.set_style("darkgrid")
+sns.set_palette("Set2")
+
+sns.lineplot(x='Date', y='Sales', hue='Store_Type', data=df, ci=None, estimator='mean', alpha=0.7)
+
+plt.title("Sales by Date and Store Type")
+plt.xlabel("Date")
+plt.ylabel("Sales")
+
+plt.show()
+
+sns.set_style("darkgrid")
+sns.set_palette("Set2")
+
+sns.lineplot(x='Date', y='Sales', hue='Location_Type', data=df, ci=None, estimator='mean', alpha=0.7)
+
+plt.title("Sales by Date and Location Type")
+plt.xlabel("Date")
+plt.ylabel("Sales")
+
+plt.show()
+
+sns.scatterplot(x='#Order', y='Sales', hue='Discount', data=df)
+plt.show()
+#Check missing value
+check_missing = df.isnull().sum() * 100 / df.shape[0]
+check_missing[check_missing > 0].sort_values(ascending=False)
+df.shape
+df.drop(columns='Date', inplace=True)
+df.head()
+
+# Loop over each column in the DataFrame where dtype is 'object'
+for col in df.select_dtypes(include=['object']).columns:
+    
+    # Print the column name and the unique values
+    print(f"{col}: {df[col].unique()}")
+
+from sklearn import preprocessing
+
+# Loop over each column in the DataFrame where dtype is 'object'
+for col in df.select_dtypes(include=['object']).columns:
+    
+    # Initialize a LabelEncoder object
+    label_encoder = preprocessing.LabelEncoder()
+    
+    # Fit the encoder to the unique values in the column
+    label_encoder.fit(df[col].unique())
+    
+    # Transform the column using the encoder
+    df[col] = label_encoder.transform(df[col])
+      # Print the column name and the unique encoded values
+    print(f"{col}: {df[col].unique()}")
